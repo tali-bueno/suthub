@@ -14,6 +14,7 @@
           @input="formatNascimento"
           required
           outlined
+          maxlength="10"
         ></v-text-field>
 
         <v-text-field
@@ -21,8 +22,9 @@
           label="CPF"
           :rules="cpfRules"
           required
-          type="number"
           outlined
+          maxlength="14"
+          @input="formarCpf"
         ></v-text-field>
 
         <v-select
@@ -54,12 +56,10 @@
         <v-text-field
           v-model="usuario.renda"
           label="Renda"
-          prefix="R$"
-          type="number"
-          min="1000"
           :rules="rendaRules"
           required
           outlined
+          @input="formatRenda"
         ></v-text-field>
 
         <v-card-text class="pb-0">
@@ -75,6 +75,7 @@
           @click:append="getCep"
           @input="formatCep"
           :rules="cepRules"
+          maxlength="10"
         ></v-text-field>
 
         <v-text-field v-model="usuario.endereco.rua" label="Rua" :rules="basicRules" outlined></v-text-field>
@@ -120,14 +121,8 @@ export default {
     especieRules: [v => !!v || "Campo obrigatório"],
     racaRules: [v => !!v || "Campo obrigatório"],
     outroRules: [v => !!v || "Campo obrigatório"],
-    rendaRules: [
-      v => !!v || "Campo obrigatório",
-      v => !!v < 1.0 || "Valor mínimo 1000"
-    ],
-    cepRules: [
-      v => !!v || "Campo obrigatório",
-      v => !!isNaN(v) === false || "Somente números são permitidos"
-    ],
+    rendaRules: [v => !!v || "Campo obrigatório"],
+    cepRules: [v => !!v || "Campo obrigatório"],
     estadoRules: [v => !!v || "Campo obrigatório"],
     especie: ["cão", "gato"],
     racaCao: ["Labrador", "Shitsu", "Poodle", "Buldogue", "Pug", "outro"],
@@ -138,7 +133,7 @@ export default {
       cpf: "",
       especie: "",
       raca: "",
-      renda: "",
+      renda: undefined,
       endereco: {
         cep: "",
         rua: "",
@@ -159,8 +154,10 @@ export default {
     },
     getCep() {
       const cep = this.$data.usuario.endereco.cep;
+      const str = cep.replace(/\./g, "").replace(/\-/g, "");
+      console.log(str);
       api
-        .getAddressByCep(cep)
+        .getAddressByCep(str)
         .then(response => {
           console.log("Response then getCep", response);
           if (response.data.status === 200) {
@@ -175,8 +172,16 @@ export default {
         });
     },
     formatCep() {
-      console.log("format");
       let cep = this.$data.usuario.endereco.cep;
+
+      const str = cep.replace(/\./g, "").replace(/\-/g, "");
+      console.log(str);
+      if (isNaN(str)) {
+        this.$data.cepRules = [v => "Somente números são permitidos"];
+      } else {
+        this.$data.cepRules = [v => !!v];
+      }
+
       if (cep.length === 2) {
         this.$data.usuario.endereco.cep += ".";
       }
@@ -193,32 +198,98 @@ export default {
         this.$data.usuario.nascimento += "/";
       }
 
-      if(nasc.length === 10){
+      if (nasc.length === 10) {
         const valid = this.verifyNasc(nasc);
       }
     },
-    verifyNasc(data){
-       data = data.replace(/\//g, "-");
-       var data_array = data.split("-");
+    verifyNasc(data) {
+      data = data.replace(/\//g, "-");
+      let data_array = data.split("-");
 
-       if(data_array[0].length != 4){
-        data = data_array[2]+"-"+data_array[1]+"-"+data_array[0];
+      if (data_array[0].length != 4) {
+        data = data_array[2] + "-" + data_array[1] + "-" + data_array[0];
       }
 
-      var hoje = new Date();
-      var nasc  = new Date(data);
-      var idade = hoje.getFullYear() - nasc.getFullYear();
-      var m = hoje.getMonth() - nasc.getMonth();
+      let hoje = new Date();
+      let nasc = new Date(data);
+      let idade = hoje.getFullYear() - nasc.getFullYear();
+      let m = hoje.getMonth() - nasc.getMonth();
       if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
-      
-      if(idade < 18){
-          this.$data.nascimentoRules = [v => "Pessoas menores de 18 não podem se cadastrar."];
+
+      if (idade < 18) {
+        this.$data.nascimentoRules = [
+          v => "Pessoas menores de 18 não podem se cadastrar."
+        ];
       }
 
-      if(idade >= 18 && idade > 65){
-          this.$data.nascimentoRules = [v => "Pessoas maiores de 65 não podem se cadastrar."];
+      if (idade >= 18 && idade > 65) {
+        this.$data.nascimentoRules = [
+          v => "Pessoas maiores de 65 não podem se cadastrar."
+        ];
+      }
+    },
+    formarCpf() {
+      let cpf = this.$data.usuario.cpf;
+
+      const str = cpf.replace(/\./g, "").replace(/\-/g, "");
+      if (isNaN(str)) {
+        this.$data.cpfRules = [v => "Somente números são permitidos"];
+      } else {
+        this.$data.cpfRules = [v => !!v];
       }
 
+      if (cpf.length === 3) {
+        this.$data.usuario.cpf += ".";
+      }
+      if (cpf.length === 7) {
+        this.$data.usuario.cpf += ".";
+      }
+      if (cpf.length === 11) {
+        this.$data.usuario.cpf += "-";
+      }
+    },
+    formatRenda() {
+      let renda = this.$data.usuario.renda;
+      let rendaFormat = renda
+        .split("")
+        .filter(s => /\d/.test(s))
+        .join("")
+        .padStart(3, "0");
+      const digitsFloat = rendaFormat.slice(0, -2) + "." + renda.slice(-2);
+      this.$data.usuario.renda = this.maskCurrency(digitsFloat);
+      console.log("REnda", this.$data.usuario.renda);
+      this.validateRenda(this.$data.usuario.renda);
+    },
+    maskCurrency(valor) {
+      const locale = "pt-BR",
+        currency = "BRL";
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency
+      }).format(valor);
+    },
+    validateRenda(value) {
+      if (value === "R$ NaN") {
+        this.$data.usuario.renda = "";
+      }
+      const length = value.length;
+      const totalNum = length - 3;
+      const substring = value.substr(-20, totalNum);
+      console.log("substr", substring);
+
+      const partial = substring
+        .replace("R$", "")
+        .replace(" ", "")
+        .replace(".", "");
+      console.log("partial", partial);
+      if (partial < 1000) {
+        console.log("valor menor que 1000");
+        this.$data.rendaRules = [
+          v => "Renda não pode ser inferior a R$ 1.000,00"
+        ];
+      } else {
+        this.$data.rendaRules = [v => !!v];
+      }
     }
   }
 };
