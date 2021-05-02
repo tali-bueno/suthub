@@ -11,7 +11,6 @@ export default class CountryApi{
             let endpoint = "https://restcountries.eu/rest/v2/all?fields=regionalBlocs"
             axios.get(endpoint)
             .then(response => {
-                console.log("Response getAll then Api", response);
                 resolve(response);
             }).catch(err => {
                 console.error("api getAll Error:: ", err);
@@ -26,7 +25,6 @@ export default class CountryApi{
             let endpoint = "https://restcountries.eu/rest/v2/regionalbloc/" + region
             axios.get(endpoint)
             .then(response => {
-                console.log("Response getAllByRegion then Api", response);
                 resolve(response);
             }).catch(err => {
                 console.error("api getAllByRegion Error:: ", err);
@@ -41,7 +39,6 @@ export default class CountryApi{
             let endpoint = "https://restcountries.eu/rest/v2/name/" + name
             axios.get(endpoint)
             .then(response => {
-                console.log("Response getByCountryName then Api", response);
                 resolve(response);
             }).catch(err => {
                 console.error("api getByCountryName Error:: ", err);
@@ -56,7 +53,6 @@ export default class CountryApi{
             let endpoint = "https://restcountries.eu/rest/v2/lang/" + lang
             axios.get(endpoint)
             .then(response => {
-                console.log("Response getByLang then Api", response.data);
                 resolve(response);
             }).catch(err => {
                 console.error("api getByLang Error:: ", err);
