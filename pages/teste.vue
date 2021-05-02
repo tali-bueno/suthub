@@ -1,98 +1,137 @@
 <template>
   <v-app>
-    <v-card class="mx-auto" max-width="500" min-width="500">
-      <v-card-text class="pb-0">
-        <p>Dados Pessoais</p>
-      </v-card-text>
-      <v-form ref="form" v-model="valid" lazy-validation class="ma-3">
-        <v-text-field v-model="usuario.nome" :rules="nameRules" label="Nome" required outlined></v-text-field>
+    <v-card class="ma-12 pa-2" color="rgba(202, 192, 192, 0.295)" height="800">
+      <v-toolbar class="ma-5" color="rgba(70, 66, 66, 0.295)" height="80" dark>
+        <v-toolbar-title class="display-1">Cadastro</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn color="info" @click="goToHome" class="ma-4">Voltar</v-btn>
+      </v-toolbar>
 
-        <v-text-field
-          v-model="usuario.nascimento"
-          label="Data de nascimento"
-          :rules="nascimentoRules"
-          @input="formatNascimento"
-          required
-          outlined
-          maxlength="10"
-        ></v-text-field>
+      <v-card class="mx-auto ma-4" max-width="500" min-width="900" height="600">
 
-        <v-text-field
-          v-model="usuario.cpf"
-          label="CPF"
-          :rules="cpfRules"
-          required
-          outlined
-          maxlength="14"
-          @input="formarCpf"
-        ></v-text-field>
+        <v-form ref="form" v-model="valid" lazy-validation class="ma-3">
+          <v-container class="mb-6">
+            <v-row no-gutters style="height: 150px;">
+              <v-col class="ma-5">
+                <v-card-text class="pb-0">
+                  <p>Dados Pessoais</p>
+                </v-card-text>
+                <v-text-field
+                  v-model="usuario.nome"
+                  :rules="nameRules"
+                  label="Nome"
+                  required
+                  outlined
+                ></v-text-field>
 
-        <v-select
-          v-model="usuario.especie"
-          :items="especie"
-          :rules="especieRules"
-          label="Selecione a espécie"
-          required
-          outlined
-        ></v-select>
-        <v-select
-          v-model="usuario.raca"
-          :items="usuario.especie === 'gato'? racaGato : racaCao"
-          :rules="racaRules"
-          label="Selecione a raça"
-          required
-          outlined
-        ></v-select>
+                <v-text-field
+                  v-model="usuario.nascimento"
+                  label="Data de nascimento"
+                  :rules="nascimentoRules"
+                  @input="formatNascimento"
+                  required
+                  outlined
+                  maxlength="10"
+                ></v-text-field>
 
-        <v-text-field
-          v-show="usuario.raca === 'outro'"
-          v-model="option"
-          label="Insira a raça"
-          :rules="outroRules"
-          required
-          outlined
-        ></v-text-field>
+                <v-text-field
+                  v-model="usuario.cpf"
+                  label="CPF"
+                  :rules="cpfRules"
+                  required
+                  outlined
+                  maxlength="14"
+                  @input="formarCpf"
+                ></v-text-field>
 
-        <v-text-field
-          v-model="usuario.renda"
-          label="Renda"
-          :rules="rendaRules"
-          required
-          outlined
-          @input="formatRenda"
-        ></v-text-field>
+                <v-select
+                  v-model="usuario.especie"
+                  :items="especie"
+                  :rules="especieRules"
+                  label="Selecione a espécie"
+                  required
+                  outlined
+                ></v-select>
+                <v-select
+                  v-model="usuario.raca"
+                  :items="usuario.especie === 'gato'? racaGato : racaCao"
+                  :rules="racaRules"
+                  label="Selecione a raça"
+                  required
+                  outlined
+                ></v-select>
 
-        <v-card-text class="pb-0">
-          <p>Endereço</p>
-        </v-card-text>
+                <v-text-field
+                  v-show="usuario.raca === 'outro'"
+                  v-model="option"
+                  label="Insira a raça"
+                  :rules="outroRules"
+                  required
+                  outlined
+                ></v-text-field>
 
-        <v-text-field
-          v-model="usuario.endereco.cep"
-          required
-          label="Cep"
-          outlined
-          :append-icon="'mdi-send'"
-          @click:append="getCep"
-          @input="formatCep"
-          :rules="cepRules"
-          maxlength="10"
-        ></v-text-field>
+                <v-text-field
+                  v-model="usuario.renda"
+                  label="Renda"
+                  :rules="rendaRules"
+                  required
+                  outlined
+                  @input="formatRenda"
+                ></v-text-field>
+              </v-col>
 
-        <v-text-field v-model="usuario.endereco.rua" label="Rua" :rules="basicRules" outlined></v-text-field>
-        <v-text-field v-model="usuario.endereco.bairro" label="Bairro" :rules="basicRules" outlined></v-text-field>
-        <v-text-field v-model="usuario.endereco.cidade" label="Cidade" :rules="basicRules" outlined></v-text-field>
+              <v-col class="ma-5">
+                <v-card-text class="pb-0">
+                  <p>Endereço</p>
+                </v-card-text>
+                <v-text-field
+                  v-model="usuario.endereco.cep"
+                  required
+                  label="Cep"
+                  outlined
+                  :append-icon="'mdi-send'"
+                  @click:append="getCep"
+                  @input="formatCep"
+                  :rules="cepRules"
+                  maxlength="10"
+                ></v-text-field>
 
-        <v-text-field
-          v-model="usuario.endereco.estado"
-          label="Estado"
-          :rules="estadoRules"
-          maxlength="2"
-          outlined
-          oninput="this.value = this.value.toUpperCase()"
-        ></v-text-field>
+                <v-text-field
+                  v-model="usuario.endereco.rua"
+                  label="Rua"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="usuario.endereco.bairro"
+                  label="Bairro"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="usuario.endereco.cidade"
+                  label="Cidade"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
 
-        <v-btn :disabled="!valid" color="info" class="mr-4" @click="save">Enviar</v-btn>
-      </v-form>
+                <v-text-field
+                  v-model="usuario.endereco.estado"
+                  label="Estado"
+                  :rules="estadoRules"
+                  maxlength="2"
+                  outlined
+                  oninput="this.value = this.value.toUpperCase()"
+                ></v-text-field>
+                <v-row align="center" justify="space-around">
+                  <v-btn min-width="380" color="info" class="m-4 mt-8" @click="save">Enviar</v-btn>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
+
+        </v-form>
+      </v-card>
     </v-card>
   </v-app>
 </template>
@@ -149,6 +188,9 @@ export default {
     }
   },
   methods: {
+    goToHome() {
+      this.$router.push("/");
+    },
     save() {
       this.$refs.form.validate();
     },
