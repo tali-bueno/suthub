@@ -31,7 +31,7 @@
             <input v-model="usuario.endereco.estado" placeholder="Estado" required/>
         </div>
     </div>
-     <button class="btn-save" @click="salvar(usuario)">Enviar</button>
+     <button :disabled="!valid" class="btn-save" @click="salvar(usuario)">Enviar</button>
     </div>
   </div>
 </template>
