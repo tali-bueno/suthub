@@ -129,7 +129,7 @@
                   oninput="this.value = this.value.toUpperCase()"
                 ></v-text-field>
                 <v-row align="center" justify="space-around">
-                  <v-btn :disabled="!valid" min-width="180" color="info" class="m-4 mt-8" @click="save">Enviar</v-btn>
+                  <v-btn min-width="180" color="info" class="m-4 mt-8" @click="save">Enviar</v-btn>
                   <v-btn min-width="180" class="m-4 mt-8" @click="limpar">Limpar</v-btn>
                 </v-row>
               </v-col>
@@ -148,7 +148,6 @@ import CepApi from "../apis/CepApi";
 const api = new CepApi();
 export default {
   data: () => ({
-    valid:true,
     option: "",
     valid: true,
     name: "",
@@ -184,6 +183,13 @@ export default {
   watch: {
     usuario: function(value) {
       this.$data.usuario = value;
+    },
+    'usuario.renda': function(value){
+      this.$data.usuario.renda = value;
+      console.log("Watch renda", value);
+      if (value === "R$ NaN") {
+        this.$data.usuario.renda = "";
+      }
     }
   },
   methods: {
@@ -423,6 +429,7 @@ export default {
     },
     formatRenda() {
       let renda = this.$data.usuario.renda;
+     
       if(renda){
         let rendaFormat = renda
         .split("")
@@ -444,9 +451,7 @@ export default {
     },
     validateRenda() {
       const value = this.$data.usuario.renda;
-      if (value === "R$ NaN") {
-        this.$data.usuario.renda = "";
-      }
+      
       const length = value.length;
       const totalNum = length - 3;
       const substring = value.substr(-20, totalNum);
