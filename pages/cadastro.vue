@@ -20,7 +20,7 @@
                   v-model="usuario.nome"
                   :rules="nameRules"
                   label="Nome"
-                  @input="validateName"
+                  @blur="validateName"
                   required
                   outlined
                 ></v-text-field>
@@ -30,6 +30,7 @@
                   label="Data de nascimento"
                   :rules="nascimentoRules"
                   @input="formatNascimento"
+                  @blur="validateLengthNasc"
                   required
                   outlined
                   maxlength="10"
@@ -43,6 +44,7 @@
                   outlined
                   maxlength="14"
                   @input="formarCpf"
+                  @blur="validateLengthCpf"
                 ></v-text-field>
 
                 <v-select
@@ -78,6 +80,7 @@
                   required
                   outlined
                   @input="formatRenda"
+                  @blur="validateRenda"
                 ></v-text-field>
               </v-col>
 
@@ -93,6 +96,7 @@
                   :append-icon="'mdi-magnify'"
                   @click:append="getCep"
                   @input="formatCep"
+                  @blur="validateLengthCep"
                   :rules="cepRules"
                   maxlength="10"
                 ></v-text-field>
@@ -215,12 +219,52 @@ export default {
     },
     validateName(){
       const name = this.$data.usuario.nome;
-      if(name){
+      if(name && name.length > 3){
         if(!name.match(/^((\b[A-zÀ-ú']{2,40}\b)\s*){2,}$/)){
           this.$data.nameRules = [v => "Nome tem que ser completo"];
         }else{
           this.$data.nameRules = [v => !!v];
         }
+      }
+    },
+    validateLengthNasc(){
+      const nasc = this.$data.usuario.nascimento;
+      const dia = "";
+      if(nasc.length < 10){
+        this.$data.nascimentoRules = [v => "Data de nascimento imcompleta"];
+      }
+      if(nasc){
+        const nascPartial = nasc.split("/");
+        if(nascPartial[0].length > 1){
+          const dia = nascPartial[0].split("");
+          if(dia[0] > 3){
+            this.$data.nascimentoRules = [v => "Dia de nascimento não é válido"];
+          }
+          
+          if(dia[0] === "3" && dia[1] > 1){
+            this.$data.nascimentoRules = [v => "Dia de nascimento não é válido"];
+          }
+        }
+        if(nascPartial[1]){
+          const mes = nascPartial[1];
+
+          if(mes && mes > "12"){
+             this.$data.nascimentoRules = [v => "Mês de nascimento não é válido"];
+          }
+        }
+
+      }
+    },
+    validateLengthCep(){
+      const cep = this.$data.usuario.endereco.cep;
+      if(cep.length < 10){
+        this.$data.cpfRules = [v => "CEP incompleto"];
+      }
+    },
+    validateLengthCpf(){
+      const cpf = this.$data.usuario.cpf;
+      if(cpf.length < 14){
+        this.$data.cpfRules = [v => "CPF incompleto"];
       }
     },
     formatCep() {
@@ -387,7 +431,6 @@ export default {
         .padStart(3, "0");
         const digitsFloat = rendaFormat.slice(0, -2) + "." + renda.slice(-2);
         this.$data.usuario.renda = this.maskCurrency(digitsFloat);
-        this.validateRenda(this.$data.usuario.renda);
       }
       
     },
@@ -399,7 +442,8 @@ export default {
         currency
       }).format(valor);
     },
-    validateRenda(value) {
+    validateRenda() {
+      const value = this.$data.usuario.renda;
       if (value === "R$ NaN") {
         this.$data.usuario.renda = "";
       }
