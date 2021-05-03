@@ -80,7 +80,7 @@ export default {
             this.$router.push("/detailBrasil");
         },
         goTo(){
-             this.$router.push("/teste");
+             this.$router.push("/cadastro");
         },
         getByName(){
             if(this.$data.name){

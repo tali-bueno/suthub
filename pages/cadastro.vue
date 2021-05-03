@@ -1,194 +1,427 @@
 <template>
-  <div class="container">
-    <div class="title">
-      <h1>Cadastro</h1>
-      <button @click="goToHome">Voltar</button>
-    </div>
-    <div class="container-form">
-        <div class="form">
-        <div class="form-data">
-            <p>Dados Pessoais</p>
-            <input type="text" v-model="usuario.nome" placeholder="Nome" required/>
-            <!-- <input type="date" value="dd/mm/aaaa" v-model="usuario.idade" placeholder="Data de Nascimento" required pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}"/> -->
-            <input type="date" value="dd/mm/aaaa">
-            <input type="number" v-model="usuario.cpf" placeholder="CPF" required/>
-            <select placeholder="Espécie do pet" name="select">
-                <option v-for="item in especie" :key="item" value="item">{{item}}</option>
-            </select>
-            <select placeholder="Raça do pet" required>
-                <option></option>
-            </select>
-            <input placeholder="Outro"/>
-            <input v-model="usuario.renda" type="number" placeholder="Renda mensal" required/>
-        </div>
-        
-        <div class="form-address">
-            <p>Endereço</p>
-            <input v-model="usuario.endereco.cep" placeholder="CEP" required/>
-            <input v-model="usuario.endereco.rua" placeholder="Rua" required/>
-            <input v-model="usuario.endereco.bairro" placeholder="Bairro" required/>
-            <input v-model="usuario.endereco.cidade" placeholder="Cidade" required/>
-            <input v-model="usuario.endereco.estado" placeholder="Estado" required/>
-        </div>
-    </div>
-     <button :disabled="!valid" class="btn-save" @click="salvar(usuario)">Enviar</button>
-    </div>
-  </div>
+  <v-app>
+    <v-card class="ma-12 pa-2" color="rgba(202, 192, 192, 0.295)" height="900">
+      <v-toolbar class="ma-5" color="rgba(70, 66, 66, 0.295)" height="80" dark>
+        <v-toolbar-title class="display-1">Cadastro</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn color="info" @click="goToHome" class="ma-4">Voltar</v-btn>
+      </v-toolbar>
+
+      <v-card class="mx-auto ma-4" max-width="500" min-width="900" height="700">
+
+        <v-form ref="form" v-model="valid" lazy-validation class="ma-3">
+          <v-container class="mb-6">
+            <v-row no-gutters style="height: 150px;">
+              <v-col class="ma-5">
+                <v-card-text class="pb-0">
+                  <p>Dados Pessoais</p>
+                </v-card-text>
+                <v-text-field
+                  v-model="usuario.nome"
+                  :rules="nameRules"
+                  label="Nome"
+                  @input="validateName"
+                  required
+                  outlined
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="usuario.nascimento"
+                  label="Data de nascimento"
+                  :rules="nascimentoRules"
+                  @input="formatNascimento"
+                  required
+                  outlined
+                  maxlength="10"
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="usuario.cpf"
+                  label="CPF"
+                  :rules="cpfRules"
+                  required
+                  outlined
+                  maxlength="14"
+                  @input="formarCpf"
+                ></v-text-field>
+
+                <v-select
+                  v-model="usuario.especie"
+                  :items="especie"
+                  :rules="especieRules"
+                  label="Selecione a espécie"
+                  required
+                  outlined
+                ></v-select>
+                <v-select
+                  v-model="usuario.raca"
+                  :items="usuario.especie === 'gato'? racaGato : racaCao"
+                  :rules="racaRules"
+                  label="Selecione a raça"
+                  required
+                  outlined
+                ></v-select>
+
+                <v-text-field
+                  v-show="usuario.raca === 'outro'"
+                  v-model="option"
+                  label="Insira a raça"
+                  :rules="outroRules"
+                  required
+                  outlined
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="usuario.renda"
+                  label="Renda"
+                  :rules="rendaRules"
+                  required
+                  outlined
+                  @input="formatRenda"
+                ></v-text-field>
+              </v-col>
+
+              <v-col class="ma-5">
+                <v-card-text class="pb-0">
+                  <p>Endereço</p>
+                </v-card-text>
+                <v-text-field
+                  v-model="usuario.endereco.cep"
+                  required
+                  label="Cep"
+                  outlined
+                  :append-icon="'mdi-magnify'"
+                  @click:append="getCep"
+                  @input="formatCep"
+                  :rules="cepRules"
+                  maxlength="10"
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="usuario.endereco.rua"
+                  label="Rua"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="usuario.endereco.bairro"
+                  label="Bairro"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="usuario.endereco.cidade"
+                  label="Cidade"
+                  :rules="basicRules"
+                  outlined
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="usuario.endereco.estado"
+                  label="Estado"
+                  :rules="estadoRules"
+                  maxlength="2"
+                  outlined
+                  oninput="this.value = this.value.toUpperCase()"
+                ></v-text-field>
+                <v-row align="center" justify="space-around">
+                  <v-btn :disabled="!valid" min-width="180" color="info" class="m-4 mt-8" @click="save">Enviar</v-btn>
+                  <v-btn min-width="180" class="m-4 mt-8" @click="limpar">Limpar</v-btn>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
+
+        </v-form>
+      </v-card>
+    </v-card>
+  </v-app>
 </template>
 
 <script>
-export default {
-    data(){
-        return{
-            especie:["cão", "gato"],
-            racaCao:["Labrador", "Shitsu", "Poodle", "Buldogue", "Pug", "outro"],
-            racaGato:["Siamês", "Angorá", "Persa", "Maine Coon", "Sphynx", "outro"],
-            usuario: {
-                nome: "",
-                idade: "",
-                cpf: "",
-                especie: "",
-                raca: [],
-                renda: "",
-                endereco:{
-                    rua: "",
-                    bairro: "",
-                    cidade: "",
-                    estado: ""
-                }
-            }
-        }
-    },
-    methods:{
-         goToHome(){
-          this.$router.push("/");
-        },
-        salvar(usuario){
-            console.log("Salvar", usuario);
-            this.validate();
-        },
-        validate(){
-            const user = this.$data.usuario;
+import CepApi from "../apis/CepApi";
 
-            const res = this.validateName(user.nome);
-            console.log("RES", res);
-            
-        },
-        validateName(name){
-            console.log("validate name", name);
-            return !!name.match(/^((\b[A-zÀ-ú']{2,40}\b)\s*){2,}$/);
-        },
-        validateDate(){
-            
-        }
+const api = new CepApi();
+export default {
+  data: () => ({
+    valid:true,
+    option: "",
+    valid: true,
+    name: "",
+    basicRules: [v => !!v || "Campo obrigatório"],
+    nameRules: [v => !!v || "Campo nome é obrigatório"],
+    nascimentoRules: [ v => !!v || "Campo obrigatório"],
+    cpfRules: [v => !!v || "Campo obrigatório"],
+    especieRules: [v => !!v || "Campo obrigatório"],
+    racaRules: [v => !!v || "Campo obrigatório"],
+    outroRules: [v => !!v || "Campo obrigatório"],
+    rendaRules: [v => !!v || "Campo obrigatório"],
+    cepRules: [v => !!v || "Campo obrigatório"],
+    estadoRules: [v => !!v || "Campo obrigatório"],
+    especie: ["cão", "gato"],
+    racaCao: ["Labrador", "Shitsu", "Poodle", "Buldogue", "Pug", "outro"],
+    racaGato: ["Siamês", "Angorá", "Persa", "Maine Coon", "Sphynx", "outro"],
+    usuario: {
+      nome: "",
+      nascimento: "",
+      cpf: "",
+      especie: "",
+      raca: "",
+      renda: undefined,
+      endereco: {
+        cep: "",
+        rua: "",
+        bairro: "",
+        cidade: "",
+        estado: ""
+      }
     }
-}
+  }),
+  watch: {
+    usuario: function(value) {
+      this.$data.usuario = value;
+    }
+  },
+  methods: {
+    goToHome() {
+      this.$router.push("/");
+    },
+    save() {
+      this.$refs.form.validate();
+       if(this.$data.option){
+        this.$data.usuario.raca = this.$data.option;
+      }
+      console.log("Usuário: ", this.$data.usuario);
+    },
+    limpar(){
+      this.$refs.form.reset();
+    },
+    getCep() {
+      const cep = this.$data.usuario.endereco.cep;
+      const str = cep.replace(/\./g, "").replace(/\-/g, "");
+      api
+        .getAddressByCep(str)
+        .then(response => {
+          if (response.data.status === 200) {
+            this.$data.usuario.endereco.rua = response.data.address;
+            this.$data.usuario.endereco.bairro = response.data.district;
+            this.$data.usuario.endereco.cidade = response.data.city;
+            this.$data.usuario.endereco.estado = response.data.state;
+          }
+        })
+        .catch(err => {
+          console.log("error getCep", err);
+        });
+    },
+    validateName(){
+      const name = this.$data.usuario.nome;
+      if(name){
+        if(!name.match(/^((\b[A-zÀ-ú']{2,40}\b)\s*){2,}$/)){
+          this.$data.nameRules = [v => "Nome tem que ser completo"];
+        }else{
+          this.$data.nameRules = [v => !!v];
+        }
+      }
+    },
+    formatCep() {
+      let cep = this.$data.usuario.endereco.cep;
+
+      if(cep){
+         const str = cep.replace(/\./g, "").replace(/\-/g, "");
+          console.log(str);
+          if (isNaN(str)) {
+            this.$data.cepRules = [v => "Somente números são permitidos"];
+          } else {
+            this.$data.cepRules = [v => !!v];
+          }
+
+          if (cep.length === 2) {
+            this.$data.usuario.endereco.cep += ".";
+          }
+          if (cep.length === 6) {
+            this.$data.usuario.endereco.cep += "-";
+          }
+      }
+    },
+    formatNascimento() {
+      let nasc = this.$data.usuario.nascimento;
+
+      if(nasc){
+          const str = nasc.replace(/\//g, "");
+        if (isNaN(str)) {
+          this.$data.nascimentoRules = [v => "Somente números são permitidos"];
+        } else {
+          this.$data.nascimentoRules = [v => !!v];
+        }
+      }
+
+      if (nasc && nasc.length === 2) {
+        this.$data.usuario.nascimento += "/";
+      }
+      if (nasc && nasc.length === 5) {
+        this.$data.usuario.nascimento += "/";
+      }
+
+      if (nasc && nasc.length === 10) {
+        const valid = this.verifyNasc(nasc);
+      }
+    },
+    verifyNasc(data) {
+      data = data.replace(/\//g, "-");
+      let data_array = data.split("-");
+
+      if (data_array[0].length != 4) {
+        data = data_array[2] + "-" + data_array[1] + "-" + data_array[0];
+      }
+
+      let hoje = new Date();
+      let nasc = new Date(data);
+      let idade = hoje.getFullYear() - nasc.getFullYear();
+      let m = hoje.getMonth() - nasc.getMonth();
+      if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+
+      if (idade < 18) {
+        this.$data.nascimentoRules = [
+          v => "Pessoas menores de 18 não podem se cadastrar."
+        ];
+      }
+
+      if (idade >= 18 && idade > 65) {
+        this.$data.nascimentoRules = [
+          v => "Pessoas maiores de 65 não podem se cadastrar."
+        ];
+      }
+    },
+    formarCpf() {
+      let cpf = this.$data.usuario.cpf;
+
+      if(cpf){
+        const str = cpf.replace(/\./g, "").replace(/\-/g, "");
+        if (isNaN(str)) {
+          this.$data.cpfRules = [v => "Somente números são permitidos"];
+        } else {
+          this.$data.cpfRules = [v => !!v];
+        }
+
+        if (cpf.length === 3) {
+          this.$data.usuario.cpf += ".";
+        }
+        if (cpf.length === 7) {
+          this.$data.usuario.cpf += ".";
+        }
+        if (cpf.length === 11) {
+          this.$data.usuario.cpf += "-";
+        }
+
+        if(cpf.length === 14){
+          const valid = this.validateCpf();
+          console.log("VALID", valid);
+          if(!valid){
+            this.$data.cpfRules = [v => "CPF inválido"];
+          }
+        }
+      }
+     
+    },
+    validateCpf(){
+       const cpf = this.$data.usuario.cpf;
+       if(cpf.length === 14){
+          const strCpf = cpf.replaceAll(".", "").replace("-", "");
+
+          if(strCpf === "22222222222" || strCpf === "33333333333" || strCpf === "44444444444" ||
+          strCpf === "55555555555" || strCpf === "66666666666" || strCpf === "77777777777" || strCpf === "88888888888" ||
+          strCpf === "99999999999"){
+            return false;
+          }
+
+          let soma;
+          let resto;
+          soma = 0;
+          if (strCpf == "00000000000") {
+              return false;
+          }
+
+          for (let i = 1; i <= 9; i++) {
+              soma = soma + parseInt(strCpf.substring(i - 1, i)) * (11 - i);
+          }
+
+          resto = soma % 11;
+
+          if (resto == 10 || resto == 11 || resto < 2) {
+              resto = 0;
+          } else {
+              resto = 11 - resto;
+          }
+
+          if (resto != parseInt(strCpf.substring(9, 10))) {
+              return false;
+          }
+
+          soma = 0;
+
+          for (let i = 1; i <= 10; i++) {
+              soma = soma + parseInt(strCpf.substring(i - 1, i)) * (12 - i);
+          }
+          resto = soma % 11;
+
+          if (resto == 10 || resto == 11 || resto < 2) {
+              resto = 0;
+          } else {
+              resto = 11 - resto;
+          }
+
+          if (resto != parseInt(strCpf.substring(10, 11))) {
+              return false;
+          }
+
+          return true;
+                }
+    },
+    formatRenda() {
+      let renda = this.$data.usuario.renda;
+      if(renda){
+        let rendaFormat = renda
+        .split("")
+        .filter(s => /\d/.test(s))
+        .join("")
+        .padStart(3, "0");
+        const digitsFloat = rendaFormat.slice(0, -2) + "." + renda.slice(-2);
+        this.$data.usuario.renda = this.maskCurrency(digitsFloat);
+        this.validateRenda(this.$data.usuario.renda);
+      }
+      
+    },
+    maskCurrency(valor) {
+      const locale = "pt-BR",
+        currency = "BRL";
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency
+      }).format(valor);
+    },
+    validateRenda(value) {
+      if (value === "R$ NaN") {
+        this.$data.usuario.renda = "";
+      }
+      const length = value.length;
+      const totalNum = length - 3;
+      const substring = value.substr(-20, totalNum);
+
+      const partial = substring
+        .replace("R$", "")
+        .replace(" ", "")
+        .replace(".", "");
+      if (partial < 1000) {
+        this.$data.rendaRules = [
+          v => "Renda não pode ser inferior a R$ 1.000,00"
+        ];
+      } else {
+        this.$data.rendaRules = [v => !!v];
+      }
+    }
+  }
+};
 </script>
 
-<style scoped>
-    input[type="date"]::-webkit-inner-spin-button, input[type="date"]::-webkit-clear-button {
-        color: #fff;
-        position: relative !important;
-    }
-
-    input[type="date"]::-webkit-datetime-edit-year-field{
-        position: absolute !important;
-        border-left:1px solid #8c8c8c;
-        padding: 2px;
-        color:#000;
-        left: 56px;
-    }
-
-    input[type="date"]::-webkit-datetime-edit-month-field{
-        position: absolute !important;
-        border-left:1px solid #8c8c8c;
-        padding: 2px;
-        color:#000;
-        left: 26px;
-    }
-
-
-    input[type="date"]::-webkit-datetime-edit-day-field{
-        position: absolute !important;
-        color:#000;
-        padding: 2px;
-        left: 4px;
-    }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    .container-form{
-        margin: 70px;
-        text-align: center;
-    }
-    .form{
-        display: flex;
-    }
-    .form-data{
-        width: 50%;
-        text-align: center;
-    }
-    .form-address{
-        width: 50%;
-        text-align: center;
-    }
-    .container{
-        background-color:rgba(202, 192, 192, 0.295);
-        display: flex; 
-        flex-direction: column;
-        border-radius: 5px;
-        padding: 10px;
-        padding-inline-start: 60px;
-        padding-inline-end: 60px;
-        margin:50px;
-        color:white;
-    }
-    .title{
-      background-color: rgba(70, 66, 66, 0.295);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      border-radius: 5px;
-    }
-    .title h1{
-      color:white;
-      padding:20px;
-    }
-    .btn-save{
-        width: 600px;
-    }
-     button{
-        width: 100px; 
-        height: 40px; 
-        margin:20px; 
-        background-color: #1E90FF;
-        color:white; 
-        border:0px; 
-        border-radius:4px;
-        cursor:pointer;
-    } 
-    input{
-        border-radius: 5px;
-        height: 40px;
-        margin: 16px;
-        padding-left: 10px;
-        border: none;
-        width: 90%;
-        outline:none;
-    }
-    select{
-        border-radius: 5px;
-        height: 40px;
-        margin: 16px;
-        padding-left: 10px;
-        border: none;
-        width: 90%;
-        background-color: white;
-    }
-    p{
-        color:rgb(31, 29, 29);
-         margin-top: 10px;
-    }
+<style>
 </style>
