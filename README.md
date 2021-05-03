@@ -1,20 +1,23 @@
-# desafio-suthub
+## Como Rodar o projeto:
 
-## Build Setup
+### Local
 
 ```bash
-# install dependencies
-$ npm install
+npm run start
 
-# serve with hot reload at localhost:3000
-$ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+# A aplicação irá rodar na porta 3000
 ```
 
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+```bash
+npm run dev
+
+# Para rodar a aplicação em ambiente de desenvolvimento
+# A aplicação irá rodar na porta 3000
+```
+
+## Planejamento
+
+Todos os componentes, exceto o componente de cadastro foram desenvolvidos sem framework de estilo para validação
+do conhecimento.
+No componente de cadastro utilizei o framework Vuetify.
+
