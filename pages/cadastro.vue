@@ -1,13 +1,13 @@
 <template>
   <v-app>
-    <v-card class="ma-12 pa-2" color="rgba(202, 192, 192, 0.295)" min-height="900">
+    <v-card class="pa-2" color="rgba(202, 192, 192, 0.295)" min-height="900">
       <v-toolbar class="ma-5" color="rgba(70, 66, 66, 0.295)" height="80" dark>
         <v-toolbar-title class="display-1">Cadastro</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn color="info" @click="goToHome" class="ma-4">Voltar</v-btn>
       </v-toolbar>
 
-      <v-card class="mx-auto ma-4" max-width="500">
+      <v-card class="ma-6 pa-5">
 
         <v-form ref="form" v-model="valid" lazy-validation class="ma-3 mx-auto">
           <v-container class="mb-6">
