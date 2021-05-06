@@ -76,9 +76,6 @@ export default {
         flex-direction: column;
         border-radius: 5px;
         padding: 10px;
-        padding-inline-start: 60px;
-        padding-inline-end: 60px;
-        margin:50px;
         color:white;
     }
     .country-title{

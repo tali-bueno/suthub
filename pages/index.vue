@@ -55,7 +55,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped="true">
+<style lang="scss" scoped="true">
     .card{
         display: flex;
          flex-wrap: wrap;
