@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-card class="pa-2" color="rgba(202, 192, 192, 0.295)" min-height="900">
-      <v-toolbar class="ma-5 mx-auto" color="rgba(70, 66, 66, 0.295)" dark>
+      <v-toolbar class="ma-5 mx-auto" color="rgba(70, 66, 66, 0.295)" dark height="90">
         <v-toolbar-title class="display-1">Cadastro</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn color="info" @click="goToHome" class="ma-4">Voltar</v-btn>
