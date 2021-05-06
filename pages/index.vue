@@ -55,12 +55,11 @@ export default Vue.extend({
 })
 </script>
 
-<style lang="scss" scoped="true">
+<style scoped="true">
     .card{
         display: flex;
          flex-wrap: wrap;
          justify-content: left;
-         margin: 20px;
     }
     .container div{
         text-align: center;
@@ -76,6 +75,6 @@ export default Vue.extend({
         padding: 10px;
         padding-inline-start: 60px;
         padding-inline-end: 60px;
-        margin:50px;
     }
+    
 </style>
