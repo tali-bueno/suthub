@@ -9,9 +9,11 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@mdi/font": "^5.9.55",
+    "axios": "^0.19.2",
     "core-js": "^3.9.1",
-    "nuxt": "^2.15.3",
-    "axios": "^0.19.2"
+    "import": "0.0.6",
+    "nuxt": "^2.15.3"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.3"
